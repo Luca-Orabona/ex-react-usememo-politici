@@ -1,7 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
 function App() {
   const [politicalData, setPoliticalData] = useState([]);
+  const [search, setSearch] = useState("")
+ 
 
   useEffect(() => {
     (async () => {
@@ -11,14 +13,37 @@ function App() {
     })();
   }, []);
 
+ 
+
+  const filteredPoliticians = useMemo(() => {
+    return politicalData.filter(p => {
+      const politicalName = p.name.toLowerCase().includes(search.toLowerCase());
+      const politicalBiography = p.biography.toLowerCase().includes(search.toLowerCase());
+      return politicalName || politicalBiography
+    })
+  }, [politicalData, search])
+
+  console.log(filteredPoliticians);
+
+
   return (
     <>
       <h1 className="text-center">Politici</h1>
+      <div className="d-flex justify-content-center">
+        <input
+          className="form-control mb-3 w-50"
+          placeholder="search"
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+      </div>
+
       <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-        {politicalData.map((p, i) => (
+        {filteredPoliticians.map((p, i) => (
           <div key={i} className="col">
             <div className="card h-100 d-flex flex-column">
-              {/* immagine con altezza fissa e taglio proporzionato */}
+
               <img
                 src={p.image}
                 className="card-img-top"
@@ -26,7 +51,7 @@ function App() {
                 style={{ objectFit: "cover", objectPosition: "50% 10%", height: "400px" }}
               />
 
-              {/* corpo card in flex per tenere il bottone in basso */}
+
               <div className="card-body d-flex flex-column">
                 <h5 className="card-title">{p.name}</h5>
                 <i>{p.position}</i>
